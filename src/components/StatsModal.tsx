@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart2, Trash2, X } from 'lucide-react';
+import { BarChart2, Trash2, X, Flame, Trophy } from 'lucide-react';
 import type { Language } from '../utils/i18n';
 import {
   getStats,
@@ -104,16 +104,23 @@ export const StatsModal: React.FC<StatsModalProps> = ({ lang, onClose }) => {
           style={{
             display: 'flex',
             justifyContent: 'space-between',
+            alignItems: 'center',
             width: '100%',
-            padding: '0.6rem 1rem',
+            padding: '0.65rem 1rem',
             borderRadius: 'var(--radius-md)',
             background: 'var(--bg-subtle)',
             marginBottom: '1.25rem',
             fontSize: '0.85rem'
           }}
         >
-          <span>🔥 Mars: <strong>{stats.gammonsWon}</strong></span>
-          <span>🏆 Katmerli Mars: <strong>{stats.backgammonsWon}</strong></span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Flame size={15} color="var(--accent-danger)" />
+            <span>Mars: <strong>{stats.gammonsWon}</strong></span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Trophy size={15} color="var(--accent-amber)" />
+            <span>Katmerli Mars: <strong>{stats.backgammonsWon}</strong></span>
+          </div>
         </div>
 
         {/* History List */}
@@ -174,12 +181,12 @@ export const StatsModal: React.FC<StatsModalProps> = ({ lang, onClose }) => {
             onClick={handleClear}
             style={{ color: 'var(--accent-danger)' }}
           >
-            <Trash2 size={15} style={{ display: 'inline', marginRight: '5px' }} />
-            Sıfırla
+            <Trash2 size={15} />
+            <span>Sıfırla</span>
           </button>
           <button className="modal-btn-primary" onClick={onClose}>
-            <X size={15} style={{ display: 'inline', marginRight: '5px' }} />
-            {lang === 'en' ? 'Close' : 'Kapat'}
+            <X size={15} />
+            <span>{lang === 'en' ? 'Close' : 'Kapat'}</span>
           </button>
         </div>
       </div>

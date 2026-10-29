@@ -10,7 +10,8 @@ import {
   ArrowRight,
   Flame,
   Clock,
-  Sparkles
+  Sparkles,
+  Check
 } from 'lucide-react';
 import type {
   Player,
@@ -38,6 +39,8 @@ interface GameSidebarProps {
   canRoll: boolean;
   canPass: boolean;
   canUndo: boolean;
+  canConfirm?: boolean;
+  onConfirmMove?: () => void;
   onRoll: () => void;
   onPass: () => void;
   onUndo: () => void;
@@ -63,6 +66,8 @@ export const GameSidebar: React.FC<GameSidebarProps> = ({
   canRoll,
   canPass,
   canUndo,
+  canConfirm,
+  onConfirmMove,
   onRoll,
   onPass,
   onUndo,
@@ -186,6 +191,16 @@ export const GameSidebar: React.FC<GameSidebarProps> = ({
             </button>
           )}
 
+          {canConfirm && onConfirmMove && (
+            <button
+              className="btn-primary-action btn-confirm-turn"
+              onClick={onConfirmMove}
+            >
+              <Check size={18} />
+              <span>{t.confirmMove}</span>
+            </button>
+          )}
+
           {canPass && (
             <button
               className="btn-primary-action"
@@ -240,7 +255,8 @@ export const GameSidebar: React.FC<GameSidebarProps> = ({
                   </span>
                 </div>
                 <div className="mini-dice-badge">
-                  <span>🎲 {lastMove.move.dieUsed}</span>
+                  <Dices size={12} style={{ display: 'inline', verticalAlign: '-1px', marginRight: '4px' }} />
+                  <span>Zar {lastMove.move.dieUsed}</span>
                 </div>
               </div>
 

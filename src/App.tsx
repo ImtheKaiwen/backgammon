@@ -89,6 +89,12 @@ export const App: React.FC = () => {
   const [autoPassNotice, setAutoPassNotice] = useState<string | null>(null);
   const [isAiThinking, setIsAiThinking] = useState<boolean>(false);
 
+  // Auto Confirm Moves setting (toggleable in Settings)
+  const [autoConfirmMoves, setAutoConfirmMoves] = useState<boolean>(() => {
+    const stored = localStorage.getItem('kaiwen_bg_autoconfirm');
+    return stored !== null ? stored === 'true' : false;
+  });
+
   // Game Over
   const [gameOverResult, setGameOverResult] = useState<GameOverResult | null>(null);
 
@@ -280,17 +286,34 @@ export const App: React.FC = () => {
 
     // Check if turn ends naturally or via auto-pass
     if (result.newMovesLeft.length === 0) {
-      switchTurn(currentTurn === 'white' ? 'black' : 'white');
+      if (autoConfirmMoves) {
+        switchTurn(currentTurn === 'white' ? 'black' : 'white');
+      } else {
+        // Human player confirms their turn manually with button
+      }
     } else {
       const remainingLegal = getAllLegalMoves(result.newBoard, result.newBar, currentTurn, result.newMovesLeft);
       if (remainingLegal.length === 0) {
-        setAutoPassNotice('Kalan zarla yapılabilecek yasal hamle kalmadı! Sıra devrediliyor...');
-        setTimeout(() => {
-          switchTurn(currentTurn === 'white' ? 'black' : 'white');
-          setAutoPassNotice(null);
-        }, 1600);
+        if (autoConfirmMoves) {
+          setAutoPassNotice('Kalan zarla yapılabilecek yasal hamle kalmadı! Sıra devrediliyor...');
+          setTimeout(() => {
+            switchTurn(currentTurn === 'white' ? 'black' : 'white');
+            setAutoPassNotice(null);
+          }, 1600);
+        } else {
+          setAutoPassNotice('Kalan zarla başka hamle yok. Hamleyi onaylayabilirsiniz.');
+        }
       }
     }
+  };
+
+  // Confirm Move / Turn (when manual confirmation is active)
+  const handleConfirmMove = () => {
+    if (currentTurn !== 'white' && gameMode === 'ai') return;
+    sound.playCheckerMove();
+    addLog('Hamle onaylandı.');
+    setAutoPassNotice(null);
+    switchTurn(currentTurn === 'white' ? 'black' : 'white');
   };
 
   // Pass Turn (when no moves left)
@@ -513,6 +536,8 @@ export const App: React.FC = () => {
           canRoll={canRoll}
           canPass={canPass}
           canUndo={turnHistory.length > 0}
+          canConfirm={!autoConfirmMoves && turnHistory.length > 0 && currentTurn === 'white' && !gameOverResult}
+          onConfirmMove={handleConfirmMove}
           onRoll={handleRollDice}
           onPass={handlePassTurn}
           onUndo={handleUndo}
@@ -576,6 +601,11 @@ export const App: React.FC = () => {
           onChangeDifficulty={setDifficulty}
           isMuted={isMuted}
           onToggleSound={() => setIsMuted(sound.toggleMute())}
+          autoConfirmMoves={autoConfirmMoves}
+          onToggleAutoConfirm={enabled => {
+            setAutoConfirmMoves(enabled);
+            localStorage.setItem('kaiwen_bg_autoconfirm', enabled ? 'true' : 'false');
+          }}
           onClose={() => setShowSettings(false)}
         />
       )}

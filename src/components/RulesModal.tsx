@@ -35,8 +35,8 @@ export const RulesModal: React.FC<RulesModalProps> = ({ lang, onClose }) => {
         </div>
 
         <button className="modal-btn-primary" onClick={onClose} style={{ width: '100%' }}>
-          <X size={16} style={{ display: 'inline', marginRight: '6px' }} />
-          {t.close}
+          <X size={15} />
+          <span>{t.close}</span>
         </button>
       </div>
     </div>

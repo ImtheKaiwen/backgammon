@@ -58,7 +58,11 @@ export const translations = {
     gameOverTitle: 'Müsabaka Tamamlandı!',
     winnerNotice: 'kazandı!',
     rematch: 'Yeniden Oyna',
-    close: 'Kapat'
+    close: 'Kapat',
+    autoConfirmMoves: 'Otomatik Hamle Onayı',
+    confirmMove: 'Hamleyi Onayla',
+    autoConfirmOn: 'Açık (Otomatik Devret)',
+    autoConfirmOff: 'Kapalı (Onay Butonu)'
   },
   en: {
     appTitle: 'KAIWEN BACKGAMMON',
@@ -117,7 +121,11 @@ export const translations = {
     gameOverTitle: 'Match Finished!',
     winnerNotice: 'has won!',
     rematch: 'Play Again',
-    close: 'Close'
+    close: 'Close',
+    autoConfirmMoves: 'Auto-Confirm Moves',
+    confirmMove: 'Confirm Move',
+    autoConfirmOn: 'Enabled (Auto Pass)',
+    autoConfirmOff: 'Disabled (Manual Button)'
   }
 };
 

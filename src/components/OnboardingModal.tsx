@@ -37,10 +37,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       icon: <ArrowRight size={28} className="step-icon" />,
       bullets: [
         lang === 'en'
-          ? 'White moves counter-clockwise: Point 24 ➔ Point 1 (Home: 1-6).'
+          ? 'White moves counter-clockwise: Point 24 → Point 1 (Home: 1-6).'
           : 'Beyaz taşlar saat yönünün tersine: 24 numaralı haneden 1 numaraya doğru ilerler.',
         lang === 'en'
-          ? 'Black moves clockwise: Point 1 ➔ Point 24 (Home: 19-24).'
+          ? 'Black moves clockwise: Point 1 → Point 24 (Home: 19-24).'
           : 'Siyah taşlar saat yönünde: 1 numaralı haneden 24 numaraya doğru ilerler.',
         lang === 'en'
           ? 'Rolling doubles awards 4 full moves of that die value!'

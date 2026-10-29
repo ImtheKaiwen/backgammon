@@ -21,6 +21,8 @@ interface SettingsModalProps {
   onChangeDifficulty: (diff: AIDifficulty) => void;
   isMuted: boolean;
   onToggleSound: () => void;
+  autoConfirmMoves: boolean;
+  onToggleAutoConfirm: (enabled: boolean) => void;
   onClose: () => void;
 }
 
@@ -37,6 +39,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onChangeDifficulty,
   isMuted,
   onToggleSound,
+  autoConfirmMoves,
+  onToggleAutoConfirm,
   onClose
 }) => {
   const t = translations[lang];
@@ -121,6 +125,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </select>
           </div>
 
+          {/* Auto Confirm Moves */}
+          <div className="setting-item">
+            <span className="setting-label">{t.autoConfirmMoves}</span>
+            <select
+              className="setting-select"
+              value={autoConfirmMoves ? 'true' : 'false'}
+              onChange={e => onToggleAutoConfirm(e.target.value === 'true')}
+            >
+              <option value="true">{t.autoConfirmOn}</option>
+              <option value="false">{t.autoConfirmOff}</option>
+            </select>
+          </div>
+
           {/* Language */}
           <div className="setting-item">
             <span className="setting-label">{t.language}</span>
@@ -136,8 +153,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         <button className="modal-btn-primary" onClick={onClose} style={{ width: '100%' }}>
-          <X size={16} style={{ display: 'inline', marginRight: '6px' }} />
-          {t.close}
+          <X size={15} />
+          <span>{t.close}</span>
         </button>
       </div>
     </div>

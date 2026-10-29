@@ -41,11 +41,11 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   let icon = <Trophy size={36} />;
 
   if (result.winType === 'backgammon') {
-    titleBadge = 'KATMERLİ MARS! (3 Puan) 🔥';
+    titleBadge = 'KATMERLİ MARS! (3 Puan)';
     badgeClass = 'badge-mars';
     icon = <Flame size={36} />;
   } else if (result.winType === 'gammon') {
-    titleBadge = 'MARS! (2 Puan) 👑';
+    titleBadge = 'MARS! (2 Puan)';
     badgeClass = 'badge-mars';
     icon = <Trophy size={36} />;
   }
@@ -82,8 +82,8 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
 
         <div className="modal-btn-row">
           <button className="modal-btn-primary" onClick={onRematch}>
-            <RefreshCw size={16} style={{ display: 'inline', marginRight: '6px' }} />
-            {t.rematch}
+            <RefreshCw size={15} />
+            <span>{t.rematch}</span>
           </button>
           <button
             className="modal-btn-secondary"
@@ -92,8 +92,8 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               onClose();
             }}
           >
-            <X size={16} style={{ display: 'inline', marginRight: '6px' }} />
-            {t.close}
+            <X size={15} />
+            <span>{t.close}</span>
           </button>
         </div>
       </div>
