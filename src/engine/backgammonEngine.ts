@@ -288,6 +288,188 @@ export function getLegalMovesForSource(
     }
   }
 
+  // Calculate combined / compound moves if 2 or more dice are available
+  if (movesLeft.length >= 2) {
+    const isDouble = movesLeft.length >= 2 && movesLeft.every(m => m === movesLeft[0]);
+
+    if (!isDouble && movesLeft.length >= 2) {
+      const d1 = movesLeft[0];
+      const d2 = movesLeft[1];
+      const sum = d1 + d2;
+
+      // Check Path 1: d1 then d2
+      let path1Valid = false;
+      let path1Hit = false;
+      let target1: number | 'off' = 'off';
+
+      if (player === 'white') {
+        const step1 = from - d1;
+        if (step1 >= 0 && isPointOpen(board, step1, player).open) {
+          const step2 = step1 - d2;
+          if (step2 >= 0) {
+            const { open, isHit } = isPointOpen(board, step2, player);
+            if (open) {
+              path1Valid = true;
+              path1Hit = isHit;
+              target1 = step2;
+            }
+          } else if (isBearingOff && (step1 === d2 - 1 || (step1 < d2 - 1 && step1 === highestHome))) {
+            path1Valid = true;
+            target1 = 'off';
+          }
+        }
+      } else {
+        const step1 = from + d1;
+        if (step1 <= 23 && isPointOpen(board, step1, player).open) {
+          const step2 = step1 + d2;
+          if (step2 <= 23) {
+            const { open, isHit } = isPointOpen(board, step2, player);
+            if (open) {
+              path1Valid = true;
+              path1Hit = isHit;
+              target1 = step2;
+            }
+          } else if (isBearingOff && (step1 === 24 - d2 || (step1 > 24 - d2 && step1 === highestHome))) {
+            path1Valid = true;
+            target1 = 'off';
+          }
+        }
+      }
+
+      // Check Path 2: d2 then d1
+      let path2Valid = false;
+      let path2Hit = false;
+      let target2: number | 'off' = 'off';
+
+      if (player === 'white') {
+        const step1 = from - d2;
+        if (step1 >= 0 && isPointOpen(board, step1, player).open) {
+          const step2 = step1 - d1;
+          if (step2 >= 0) {
+            const { open, isHit } = isPointOpen(board, step2, player);
+            if (open) {
+              path2Valid = true;
+              path2Hit = isHit;
+              target2 = step2;
+            }
+          } else if (isBearingOff && (step1 === d1 - 1 || (step1 < d1 - 1 && step1 === highestHome))) {
+            path2Valid = true;
+            target2 = 'off';
+          }
+        }
+      } else {
+        const step1 = from + d2;
+        if (step1 <= 23 && isPointOpen(board, step1, player).open) {
+          const step2 = step1 + d1;
+          if (step2 <= 23) {
+            const { open, isHit } = isPointOpen(board, step2, player);
+            if (open) {
+              path2Valid = true;
+              path2Hit = isHit;
+              target2 = step2;
+            }
+          } else if (isBearingOff && (step1 === 24 - d1 || (step1 > 24 - d1 && step1 === highestHome))) {
+            path2Valid = true;
+            target2 = 'off';
+          }
+        }
+      }
+
+      if (path1Valid || path2Valid) {
+        const chosenTarget = path1Valid ? target1 : target2;
+        const chosenHit = path1Valid ? path1Hit : path2Hit;
+        const chosenSequence = path1Valid ? [d1, d2] : [d2, d1];
+
+        // Avoid duplicate target if already present as single die
+        if (!legalMoves.some(m => m.to === chosenTarget)) {
+          legalMoves.push({
+            from,
+            to: chosenTarget,
+            dieUsed: sum,
+            diceSequence: chosenSequence,
+            isHit: chosenHit,
+            isCompound: true
+          });
+        }
+      }
+    } else if (isDouble) {
+      // Doubles compound (2x, 3x, 4x)
+      const d = movesLeft[0];
+      let curFrom = from;
+      let curStep = 0;
+      let curSeq: number[] = [];
+
+      for (let k = 1; k <= movesLeft.length; k++) {
+        curStep += d;
+        curSeq.push(d);
+        let nextTarget: number | 'off';
+
+        if (player === 'white') {
+          const destIdx = from - curStep;
+          if (destIdx >= 0) {
+            const { open, isHit } = isPointOpen(board, destIdx, player);
+            if (!open) break;
+            if (k >= 2 && !legalMoves.some(m => m.to === destIdx)) {
+              legalMoves.push({
+                from,
+                to: destIdx,
+                dieUsed: curStep,
+                diceSequence: [...curSeq],
+                isHit,
+                isCompound: true
+              });
+            }
+          } else if (isBearingOff) {
+            if (!legalMoves.some(m => m.to === 'off')) {
+              legalMoves.push({
+                from,
+                to: 'off',
+                dieUsed: curStep,
+                diceSequence: [...curSeq],
+                isHit: false,
+                isCompound: true
+              });
+            }
+            break;
+          } else {
+            break;
+          }
+        } else {
+          // Black doubles
+          const destIdx = from + curStep;
+          if (destIdx <= 23) {
+            const { open, isHit } = isPointOpen(board, destIdx, player);
+            if (!open) break;
+            if (k >= 2 && !legalMoves.some(m => m.to === destIdx)) {
+              legalMoves.push({
+                from,
+                to: destIdx,
+                dieUsed: curStep,
+                diceSequence: [...curSeq],
+                isHit,
+                isCompound: true
+              });
+            }
+          } else if (isBearingOff) {
+            if (!legalMoves.some(m => m.to === 'off')) {
+              legalMoves.push({
+                from,
+                to: 'off',
+                dieUsed: curStep,
+                diceSequence: [...curSeq],
+                isHit: false,
+                isCompound: true
+              });
+            }
+            break;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+  }
+
   return legalMoves;
 }
 
@@ -318,9 +500,9 @@ export function getAllLegalMoves(
 }
 
 /**
- * Applies a move deterministically, producing new board, bar, borne-off and remaining dice states.
+ * Applies a simple single move without compounds
  */
-export function executeMove(
+function executeSimpleMove(
   board: BoardState,
   bar: BarState,
   borneOff: BorneOffState,
@@ -379,6 +561,68 @@ export function executeMove(
     newBorneOff,
     newMovesLeft
   };
+}
+
+/**
+ * Applies a move (single or compound multi-die) deterministically.
+ */
+export function executeMove(
+  board: BoardState,
+  bar: BarState,
+  borneOff: BorneOffState,
+  player: Player,
+  move: Move,
+  movesLeft: number[]
+): {
+  newBoard: BoardState;
+  newBar: BarState;
+  newBorneOff: BorneOffState;
+  newMovesLeft: number[];
+} {
+  if (move.isCompound && move.diceSequence && move.diceSequence.length > 1) {
+    let curBoard = board;
+    let curBar = bar;
+    let curBorneOff = borneOff;
+    let curMovesLeft = [...movesLeft];
+    let curFrom = move.from;
+
+    for (const die of move.diceSequence) {
+      let intermediateTo: number | 'off';
+      if (player === 'white') {
+        const nextIdx = curFrom === 'bar' ? 24 - die : curFrom - die;
+        intermediateTo = nextIdx < 0 ? 'off' : nextIdx;
+      } else {
+        const nextIdx = curFrom === 'bar' ? die - 1 : curFrom + die;
+        intermediateTo = nextIdx > 23 ? 'off' : nextIdx;
+      }
+
+      const singleMove: Move = {
+        from: curFrom,
+        to: intermediateTo,
+        dieUsed: die,
+        isHit: intermediateTo !== 'off' && curBoard[intermediateTo]?.player !== null && curBoard[intermediateTo]?.player !== player && curBoard[intermediateTo]?.count === 1
+      };
+
+      const res = executeSimpleMove(curBoard, curBar, curBorneOff, player, singleMove, curMovesLeft);
+      curBoard = res.newBoard;
+      curBar = res.newBar;
+      curBorneOff = res.newBorneOff;
+      curMovesLeft = res.newMovesLeft;
+      if (intermediateTo === 'off') {
+        break;
+      }
+      curFrom = intermediateTo;
+    }
+
+    return {
+      newBoard: curBoard,
+      newBar: curBar,
+      newBorneOff: curBorneOff,
+      newMovesLeft: curMovesLeft
+    };
+  }
+
+  return executeSimpleMove(board, bar, borneOff, player, move, movesLeft);
 }
 
 /**

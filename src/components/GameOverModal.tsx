@@ -85,7 +85,13 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
             <RefreshCw size={16} style={{ display: 'inline', marginRight: '6px' }} />
             {t.rematch}
           </button>
-          <button className="modal-btn-secondary" onClick={onClose}>
+          <button
+            className="modal-btn-secondary"
+            onClick={() => {
+              onRematch();
+              onClose();
+            }}
+          >
             <X size={16} style={{ display: 'inline', marginRight: '6px' }} />
             {t.close}
           </button>

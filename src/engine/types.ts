@@ -31,7 +31,20 @@ export interface Move {
   from: number | 'bar';       // 0-23 or 'bar'
   to: number | 'off';         // 0-23 or 'off'
   dieUsed: number;
+  diceSequence?: number[];    // individual dice used (e.g. [3, 5] for combined move)
   isHit: boolean;
+  isCompound?: boolean;
+}
+
+export interface LastMoveSummary {
+  player: Player;
+  from: number | 'bar';
+  to: number | 'off';
+  dice: [number, number];
+  dieUsed: number;
+  diceSequence?: number[];
+  isHit: boolean;
+  timestamp: string;
 }
 
 export interface MoveRecord {

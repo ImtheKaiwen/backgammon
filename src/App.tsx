@@ -5,6 +5,7 @@ import type {
   BarState,
   BorneOffState,
   Move,
+  MoveRecord,
   GameMode,
   AIDifficulty,
   BoardTheme,
@@ -34,6 +35,8 @@ import { GameOverModal } from './components/GameOverModal';
 import { SettingsModal } from './components/SettingsModal';
 import { RulesModal } from './components/RulesModal';
 import { StatsModal } from './components/StatsModal';
+import { OnboardingModal } from './components/OnboardingModal';
+import { HistoryDrawer } from './components/HistoryDrawer';
 
 import './styles/theme.css';
 import './styles/components.css';
@@ -77,13 +80,23 @@ export const App: React.FC = () => {
   const [selectedSource, setSelectedSource] = useState<number | 'bar' | null>(null);
   const [legalMoves, setLegalMoves] = useState<Move[]>([]);
   const [turnHistory, setTurnHistory] = useState<HistorySnapshot[]>([]);
+  const [moveHistory, setMoveHistory] = useState<MoveRecord[]>([]);
+  const [lastMove, setLastMove] = useState<MoveRecord | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
   const [startTime] = useState<number>(Date.now());
+
+  // Auto-pass and AI status
+  const [autoPassNotice, setAutoPassNotice] = useState<string | null>(null);
+  const [isAiThinking, setIsAiThinking] = useState<boolean>(false);
 
   // Game Over
   const [gameOverResult, setGameOverResult] = useState<GameOverResult | null>(null);
 
   // Modals
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
+    return !localStorage.getItem('kaiwen_bg_onboarded');
+  });
+  const [showHistoryDrawer, setShowHistoryDrawer] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showRules, setShowRules] = useState<boolean>(false);
   const [showStats, setShowStats] = useState<boolean>(false);
@@ -115,6 +128,10 @@ export const App: React.FC = () => {
     setSelectedSource(null);
     setLegalMoves([]);
     setTurnHistory([]);
+    setMoveHistory([]);
+    setLastMove(null);
+    setAutoPassNotice(null);
+    setIsAiThinking(false);
     setGameOverResult(null);
     isAiActingRef.current = false;
     setLogs(['Yeni oyun başlatıldı. Beyaz oyuncu başlıyor.']);
@@ -143,6 +160,11 @@ export const App: React.FC = () => {
       const available = getAllLegalMoves(board, bar, currentTurn, roll.movesLeft);
       if (available.length === 0) {
         addLog(`Oynanacak yasal hamle yok! Sıra rakibe geçiyor.`);
+        setAutoPassNotice('Yapılacak yasal hamleniz yoktu! Sıra rakibe devrediliyor...');
+        setTimeout(() => {
+          switchTurn(currentTurn === 'white' ? 'black' : 'white');
+          setAutoPassNotice(null);
+        }, 1800);
       }
     }, 450);
   };
@@ -157,7 +179,6 @@ export const App: React.FC = () => {
       const matchedMove = legalMoves.find(m => m.to === pointIndex);
 
       if (matchedMove) {
-        // Execute the move
         applyUserMove(matchedMove);
         return;
       }
@@ -225,11 +246,22 @@ export const App: React.FC = () => {
       sound.playCheckerMove();
     }
 
+    // Record last move
+    const record: MoveRecord = {
+      player: currentTurn,
+      move,
+      diceRoll: dice,
+      timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    };
+    setLastMove(record);
+    setMoveHistory(prev => [record, ...prev]);
+
     // Log the move
     const fromLabel = move.from === 'bar' ? 'Bar' : `Hane ${move.from + 1}`;
     const toLabel = move.to === 'off' ? 'Toplandı' : `Hane ${move.to + 1}`;
     const hitLabel = move.isHit ? ' (Taş kırıldı!)' : '';
-    addLog(`${fromLabel} ➔ ${toLabel} [Zar: ${move.dieUsed}]${hitLabel}`);
+    const comboLabel = move.isCompound ? ' (Kombo Hamle)' : '';
+    addLog(`${fromLabel} ➔ ${toLabel} [Zar: ${move.dieUsed}]${hitLabel}${comboLabel}`);
 
     // Update states
     setBoard(result.newBoard);
@@ -246,9 +278,18 @@ export const App: React.FC = () => {
       return;
     }
 
-    // Check if turn ends
-    if (result.newMovesLeft.length === 0 || getAllLegalMoves(result.newBoard, result.newBar, currentTurn, result.newMovesLeft).length === 0) {
+    // Check if turn ends naturally or via auto-pass
+    if (result.newMovesLeft.length === 0) {
       switchTurn(currentTurn === 'white' ? 'black' : 'white');
+    } else {
+      const remainingLegal = getAllLegalMoves(result.newBoard, result.newBar, currentTurn, result.newMovesLeft);
+      if (remainingLegal.length === 0) {
+        setAutoPassNotice('Kalan zarla yapılabilecek yasal hamle kalmadı! Sıra devrediliyor...');
+        setTimeout(() => {
+          switchTurn(currentTurn === 'white' ? 'black' : 'white');
+          setAutoPassNotice(null);
+        }, 1600);
+      }
     }
   };
 
@@ -312,14 +353,15 @@ export const App: React.FC = () => {
     );
   };
 
-  // AI Turn Handling
+  // AI Turn Handling (Fluid Pacing & Visual Clarity)
   useEffect(() => {
     if (gameMode !== 'ai' || currentTurn !== 'black' || gameOverResult) return;
     if (isAiActingRef.current) return;
 
     isAiActingRef.current = true;
+    setIsAiThinking(true);
 
-    // Step 1: AI Rolls Dice after a brief human-like pause
+    // Step 1: AI Rolls Dice after a measured human pause (1000ms)
     const rollTimer = setTimeout(() => {
       setIsRolling(true);
       sound.playDiceRoll();
@@ -343,15 +385,18 @@ export const App: React.FC = () => {
         );
 
         if (sequence.length === 0) {
-          addLog(`Kaiwen AI için oynanabilir hamle yok. Sıra size geçti.`);
+          addLog(`Kaiwen AI için oynanabilir hamle yok. Sıra size devredildi.`);
+          setAutoPassNotice('Kaiwen AI için hamle yoktu! Sıra size geçti.');
           setTimeout(() => {
             switchTurn('white');
+            setAutoPassNotice(null);
+            setIsAiThinking(false);
             isAiActingRef.current = false;
-          }, 800);
+          }, 1600);
           return;
         }
 
-        // Step 3: Play each AI move with fluid delay
+        // Step 3: Play each AI move with deliberate, smooth pacing (1200ms per step)
         let curBoard = board;
         let curBar = bar;
         let curBorne = borneOff;
@@ -371,7 +416,17 @@ export const App: React.FC = () => {
 
             const fromStr = m.from === 'bar' ? 'Bar' : `Hane ${m.from + 1}`;
             const toStr = m.to === 'off' ? 'Toplandı' : `Hane ${m.to + 1}`;
-            addLog(`Bot: ${fromStr} ➔ ${toStr} [Zar: ${m.dieUsed}]${m.isHit ? ' (Taşınızı kırdı!)' : ''}`);
+            const hitNotice = m.isHit ? ' (Taşınızı kırdı!)' : '';
+            addLog(`Bot: ${fromStr} ➔ ${toStr} [Zar: ${m.dieUsed}]${hitNotice}`);
+
+            const record: MoveRecord = {
+              player: 'black',
+              move: m,
+              diceRoll: roll.dice,
+              timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            };
+            setLastMove(record);
+            setMoveHistory(prev => [record, ...prev]);
 
             setBoard(curBoard);
             setBar(curBar);
@@ -382,6 +437,7 @@ export const App: React.FC = () => {
             const end = checkGameOver(curBorne, curBoard, curBar);
             if (end) {
               finishGame(end);
+              setIsAiThinking(false);
               isAiActingRef.current = false;
               return;
             }
@@ -390,13 +446,14 @@ export const App: React.FC = () => {
             if (idx === sequence.length - 1) {
               setTimeout(() => {
                 switchTurn('white');
+                setIsAiThinking(false);
                 isAiActingRef.current = false;
-              }, 700);
+              }, 900);
             }
-          }, (idx + 1) * 750);
+          }, (idx + 1) * 1200);
         });
-      }, 500);
-    }, 700);
+      }, 600);
+    }, 1000);
 
     return () => clearTimeout(rollTimer);
   }, [currentTurn, gameMode, gameOverResult]);
@@ -418,7 +475,7 @@ export const App: React.FC = () => {
         onToggleTheme={() => setThemeMode(m => (m === 'light' ? 'dark' : 'light'))}
         onToggleSound={() => setIsMuted(sound.toggleMute())}
         onOpenSettings={() => setShowSettings(true)}
-        onOpenRules={() => setShowRules(true)}
+        onOpenRules={() => setShowOnboarding(true)}
         onOpenStats={() => setShowStats(true)}
       />
 
@@ -460,9 +517,32 @@ export const App: React.FC = () => {
           onPass={handlePassTurn}
           onUndo={handleUndo}
           onResign={handleResign}
-          logs={logs}
+          lastMove={lastMove}
+          onOpenHistory={() => setShowHistoryDrawer(true)}
+          isAiThinking={isAiThinking}
+          autoPassNotice={autoPassNotice}
         />
       </main>
+
+      {/* STEP-BY-STEP ONBOARDING HOW TO PLAY MODAL */}
+      {showOnboarding && (
+        <OnboardingModal
+          lang={lang}
+          themeMode={themeMode}
+          onClose={() => {
+            localStorage.setItem('kaiwen_bg_onboarded', 'true');
+            setShowOnboarding(false);
+          }}
+        />
+      )}
+
+      {/* SLIDE-OVER HISTORY DRAWER */}
+      <HistoryDrawer
+        isOpen={showHistoryDrawer}
+        history={moveHistory}
+        lang={lang}
+        onClose={() => setShowHistoryDrawer(false)}
+      />
 
       {/* GAME OVER MODAL */}
       {gameOverResult && (
@@ -500,7 +580,7 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* RULES MODAL */}
+      {/* RULES MODAL (Quick View) */}
       {showRules && (
         <RulesModal
           lang={lang}

@@ -38,14 +38,17 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const t = translations[lang];
 
+  const logoSrc = themeMode === 'dark' ? '/kaiwen-logo-white.png' : '/kaiwen-logo-dark.png';
+
   return (
     <header className="app-header">
       <div className="header-brand">
-        <div className="brand-icon-wrapper">
-          <Dices size={20} />
+        <div className="brand-logo-container">
+          <img src={logoSrc} alt="Kaiwen Logo" className="brand-logo-img" />
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <h1 className="brand-title">{t.appTitle}</h1>
+          <h1 className="brand-title">KAIWEN</h1>
+          <span className="brand-title-sub">BACKGAMMON</span>
           <span className="brand-badge">PRO</span>
         </div>
       </div>

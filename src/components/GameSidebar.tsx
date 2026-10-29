@@ -5,13 +5,19 @@ import {
   Undo2,
   Flag,
   Bot,
-  User
+  User,
+  History,
+  ArrowRight,
+  Flame,
+  Clock,
+  Sparkles
 } from 'lucide-react';
 import type {
   Player,
   GameMode,
   BarState,
-  BorneOffState
+  BorneOffState,
+  MoveRecord
 } from '../engine/types';
 import type { Language } from '../utils/i18n';
 import { translations } from '../utils/i18n';
@@ -36,7 +42,10 @@ interface GameSidebarProps {
   onPass: () => void;
   onUndo: () => void;
   onResign: () => void;
-  logs: string[];
+  lastMove: MoveRecord | null;
+  onOpenHistory: () => void;
+  isAiThinking: boolean;
+  autoPassNotice: string | null;
 }
 
 export const GameSidebar: React.FC<GameSidebarProps> = ({
@@ -58,7 +67,10 @@ export const GameSidebar: React.FC<GameSidebarProps> = ({
   onPass,
   onUndo,
   onResign,
-  logs
+  lastMove,
+  onOpenHistory,
+  isAiThinking,
+  autoPassNotice
 }) => {
   const t = translations[lang];
 
@@ -76,7 +88,17 @@ export const GameSidebar: React.FC<GameSidebarProps> = ({
                 {gameMode === 'ai' ? t.aiBot : t.blackPlayer}
               </span>
             </div>
-            {currentTurn === 'black' && <span className="turn-pill">{t.turnIndicator}</span>}
+            {currentTurn === 'black' && (
+              <span className="turn-pill">
+                {isAiThinking ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <Sparkles size={11} className="spin-icon" /> Düşünüyor
+                  </span>
+                ) : (
+                  t.turnIndicator
+                )}
+              </span>
+            )}
           </div>
 
           <div className="player-stats-mini">
@@ -98,7 +120,7 @@ export const GameSidebar: React.FC<GameSidebarProps> = ({
         </div>
 
         {/* DICE DISPLAY ARENA */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}>
           <DiceView
             dice={dice}
             movesLeft={movesLeft}
@@ -108,7 +130,7 @@ export const GameSidebar: React.FC<GameSidebarProps> = ({
           />
           {movesLeft.length > 0 && (
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-              Kalan hamleler: {movesLeft.join(' , ')}
+              Kalan zarlar: {movesLeft.join(' , ')}
             </span>
           )}
         </div>
@@ -142,6 +164,14 @@ export const GameSidebar: React.FC<GameSidebarProps> = ({
             )}
           </div>
         </div>
+
+        {/* AUTO PASS NOTICE BANNER */}
+        {autoPassNotice && (
+          <div className="autopass-banner">
+            <span className="autopass-dot" />
+            <span className="autopass-text">{autoPassNotice}</span>
+          </div>
+        )}
 
         {/* ACTION BUTTONS */}
         <div className="sidebar-actions">
@@ -190,22 +220,52 @@ export const GameSidebar: React.FC<GameSidebarProps> = ({
           </div>
         </div>
 
-        {/* EVENT LOG */}
-        <div className="event-log-container">
-          <span className="event-log-title">Hamle Günlüğü</span>
-          <div className="event-log-list">
-            {logs.length === 0 ? (
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textAlign: 'center' }}>
-                Oyun başladı. Zarları atın!
-              </span>
-            ) : (
-              logs.map((log, idx) => (
-                <div key={idx} className="event-log-item">
-                  {log}
-                </div>
-              ))
-            )}
+        {/* LAST MOVE CARD (SPOTLIGHT) */}
+        <div className="last-move-card">
+          <div className="last-move-header">
+            <span className="last-move-title">Son Hamle</span>
+            <button className="view-history-btn" onClick={onOpenHistory} title="Tüm Hamleleri İncele">
+              <History size={13} />
+              <span>Tümünü Gör</span>
+            </button>
           </div>
+
+          {lastMove ? (
+            <div className="last-move-content">
+              <div className="last-move-top-row">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div className={`drawer-player-avatar ${lastMove.player === 'white' ? 'white' : 'black'}`} />
+                  <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>
+                    {lastMove.player === 'white' ? 'Beyaz' : 'Siyah'}
+                  </span>
+                </div>
+                <div className="mini-dice-badge">
+                  <span>🎲 {lastMove.move.dieUsed}</span>
+                </div>
+              </div>
+
+              <div className="last-move-route">
+                <span className="route-point">
+                  {lastMove.move.from === 'bar' ? 'Bar' : `Hane ${lastMove.move.from + 1}`}
+                </span>
+                <ArrowRight size={13} className="route-arrow" />
+                <span className="route-point">
+                  {lastMove.move.to === 'off' ? 'Toplandı' : `Hane ${lastMove.move.to + 1}`}
+                </span>
+
+                {lastMove.move.isHit && (
+                  <span className="hit-badge">KIRMA</span>
+                )}
+                {lastMove.move.isCompound && (
+                  <span className="compound-badge">KOMBO</span>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="last-move-empty">
+              <span>Karşılaşma başladı. İlk zarları atın.</span>
+            </div>
+          )}
         </div>
       </div>
     </aside>

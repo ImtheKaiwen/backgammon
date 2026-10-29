@@ -91,6 +91,7 @@ export const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
   // Render a single triangular point
   const renderPointColumn = (pointIndex: number, isTopRow: boolean) => {
     const isTarget = isPointLegalTarget(pointIndex);
+    const matchedTargetMove = legalMoves.find(m => m.to === pointIndex);
     const isLightColor = pointIndex % 2 === 0;
 
     return (
@@ -112,7 +113,11 @@ export const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
         <span className="point-number">{pointIndex + 1}</span>
 
         {/* Legal Target Marker */}
-        {isTarget && <div className="target-pip-marker" />}
+        {isTarget && (
+          <div className={`target-pip-marker ${matchedTargetMove?.isCompound ? 'is-compound-marker' : ''}`}>
+            {matchedTargetMove?.isCompound ? `+${matchedTargetMove.dieUsed}` : ''}
+          </div>
+        )}
 
         {/* Checkers */}
         {renderCheckers(pointIndex, isTopRow)}
