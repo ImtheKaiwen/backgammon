@@ -1,0 +1,169 @@
+/* ==========================================================================
+   KAIWEN BACKGAMMON - DESIGN SYSTEM & THEME TOKENS
+   Aesthetic: OpenAI Clean Minimalist meets High-End Luxury Game Table
+   ========================================================================== */
+
+:root {
+  /* Font Families */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Universal Transitions */
+  --tr-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --tr-smooth: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --tr-spring: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Radius Tokens */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+}
+
+/* --------------------------------------------------------------------------
+   LIGHT MODE (Default Clean Aesthetic)
+   -------------------------------------------------------------------------- */
+html.theme-light {
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --bg-hover: #e2e8f0;
+
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --border-focus: #3b82f6;
+
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+
+  --accent-primary: #2563eb;
+  --accent-primary-hover: #1d4ed8;
+  --accent-secondary: #059669;
+  --accent-danger: #ef4444;
+  --accent-amber: #f59e0b;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(226, 232, 240, 0.8);
+}
+
+/* --------------------------------------------------------------------------
+   DARK MODE (OpenAI Sleek Dark)
+   -------------------------------------------------------------------------- */
+html.theme-dark {
+  --bg-page: #0b0f19;
+  --bg-surface: #111827;
+  --bg-surface-elevated: #1f2937;
+  --bg-subtle: #1a2234;
+  --bg-hover: #2d3748;
+
+  --border-subtle: #1f2937;
+  --border-strong: #374151;
+  --border-focus: #60a5fa;
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  --accent-primary: #3b82f6;
+  --accent-primary-hover: #60a5fa;
+  --accent-secondary: #10b981;
+  --accent-danger: #f87171;
+  --accent-amber: #fbbf24;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  --glass-bg: rgba(17, 24, 39, 0.88);
+  --glass-border: rgba(55, 65, 81, 0.6);
+}
+
+/* --------------------------------------------------------------------------
+   BACKGAMMON TABLE THEMES
+   -------------------------------------------------------------------------- */
+/* 1. Classic Walnut Wood */
+.theme-classic-wood {
+  --board-outer: #3e2415;
+  --board-inner: #d7b58c;
+  --board-bar: #2b180d;
+  --point-light: #f3dfc8;
+  --point-dark: #8c3b1e;
+  --point-border: #6d2d17;
+  --checker-white-bg: radial-gradient(circle at 35% 35%, #ffffff 0%, #e8e3d9 65%, #c8bfad 100%);
+  --checker-white-border: #9c917e;
+  --checker-black-bg: radial-gradient(circle at 35% 35%, #423023 0%, #2b1d15 65%, #150e09 100%);
+  --checker-black-border: #120a06;
+}
+
+/* 2. Midnight Slate (Sleek Dark Modern) */
+.theme-dark-slate {
+  --board-outer: #0f172a;
+  --board-inner: #1e293b;
+  --board-bar: #0a0f1d;
+  --point-light: #334155;
+  --point-dark: #1e3a8a;
+  --point-border: #172554;
+  --checker-white-bg: radial-gradient(circle at 35% 35%, #ffffff 0%, #cbd5e1 65%, #94a3b8 100%);
+  --checker-white-border: #64748b;
+  --checker-black-bg: radial-gradient(circle at 35% 35%, #38bdf8 0%, #0284c7 65%, #0369a1 100%);
+  --checker-black-border: #075985;
+}
+
+/* 3. Emerald Velvet Table (Luxury Casino) */
+.theme-emerald-table {
+  --board-outer: #2d1810;
+  --board-inner: #064e3b;
+  --board-bar: #1c0e09;
+  --point-light: #ecfdf5;
+  --point-dark: #b45309;
+  --point-border: #92400e;
+  --checker-white-bg: radial-gradient(circle at 35% 35%, #ffffff 0%, #fef3c7 65%, #fde68a 100%);
+  --checker-white-border: #d97706;
+  --checker-black-bg: radial-gradient(circle at 35% 35%, #dc2626 0%, #991b1b 65%, #7f1d1d 100%);
+  --checker-black-border: #450a0a;
+}
+
+/* 4. Sapphire Night */
+.theme-sapphire-night {
+  --board-outer: #020617;
+  --board-inner: #0f172a;
+  --board-bar: #030712;
+  --point-light: #1e293b;
+  --point-dark: #6366f1;
+  --point-border: #4f46e5;
+  --checker-white-bg: radial-gradient(circle at 35% 35%, #ffffff 0%, #e0e7ff 65%, #c7d2fe 100%);
+  --checker-white-border: #818cf8;
+  --checker-black-bg: radial-gradient(circle at 35% 35%, #818cf8 0%, #4f46e5 65%, #3730a3 100%);
+  --checker-black-border: #312e81;
+}
+
+/* Base Reset & Layout */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
