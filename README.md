@@ -1,53 +1,53 @@
-# 🎲 KAIWEN BACKGAMMON
+# KAIWEN BACKGAMMON
 
-A modern, high-performance, deterministic TypeScript Backgammon engine and interactive web application with intelligent AI heuristic opponents, Web Audio procedural sound design, full standard tournament rules (including Mars / Gammon & Katmerli Mars / Backgammon point calculations), and an OpenAI-inspired minimal luxury interface.
+A modern, high-performance, deterministic TypeScript Backgammon engine and interactive web application featuring heuristic artificial intelligence, Web Audio procedural sound synthesis, complete tournament rules (including Gammon and Backgammon calculations), and a minimal luxury interface.
 
-Live Demo: **[https://imthekaiwen.github.io/backgammon/](https://imthekaiwen.github.io/backgammon/)**
+Repository: [https://github.com/ImtheKaiwen/backgammon](https://github.com/ImtheKaiwen/backgammon)
 
 ---
 
-## ✨ Features
+## Features
 
 - **Standard Tournament Backgammon Rules:**
   - 24-point standard triangular layout (15 White vs 15 Black checkers).
-  - Accurate direction: White moves counter-clockwise (24 ➔ 1), Black moves clockwise (1 ➔ 24).
-  - Doubles rolling giving 4 moves.
-  - Hitting blots (Kırma) with central Bar storage and mandatory re-entry before board moves.
-  - Making primes/doors (Kapı alma) with 2+ checkers blocking the point.
-  - Bearing off (Taş toplama) strictly when all 15 checkers reach the home quadrant.
-- **Victory & Mars Point System:**
-  - **Normal Win (1 Point):** Opponent bore off at least 1 checker.
+  - Accurate direction: White moves counter-clockwise (24 to 1), Black moves clockwise (1 to 24).
+  - Doubles rolling giving four moves.
+  - Hitting blots with central Bar storage and mandatory re-entry before board moves.
+  - Making primes/doors with two or more checkers blocking the point.
+  - Bearing off strictly when all 15 checkers reach the home quadrant.
+- **Victory & Point System:**
+  - **Normal Win (1 Point):** Opponent bore off at least one checker.
   - **Mars / Gammon (2 Points):** Winner bears off all 15 checkers before opponent bears off any.
-  - **Katmerli Mars / Backgammon (3 Points):** Winner bears off all 15 checkers before opponent bears off any, and opponent still has a checker on the bar or in winner's home quadrant.
-- **Smart Heuristic AI Bot:**
-  - 3 Difficulty levels: **Casual**, **Intermediate**, and **Master**.
-  - Dynamic heuristic evaluation balancing pip progress, making golden points, escaping home traps, hitting enemy blots, and minimizing blot vulnerability.
+  - **Katmerli Mars / Backgammon (3 Points):** Winner bears off all 15 checkers before opponent bears off any, and opponent still has a checker on the bar or in the winner home quadrant.
+- **Heuristic AI Opponent:**
+  - Three difficulty levels: Casual, Intermediate, and Master.
+  - Heuristic evaluation balancing pip progress, making golden points, escaping home traps, hitting enemy blots, and minimizing blot vulnerability.
 - **Synthesized Web Audio Effects:**
-  - Procedural sound engine (no external audio files needed):
-    - Realistic dice tumble and rattle.
+  - Procedural sound engine requiring zero external audio assets:
+    - Dice tumble and rattle.
     - Solid wooden checker clicks.
     - Hit punch sound when sending checkers to the bar.
     - Bearing off slide and chimes.
-    - Victory and Mars fanfares.
+    - Victory fanfares.
 - **Customizable Board & Visual Themes:**
-  - **Classic Walnut Wood** (Luxury traditional game board).
-  - **Midnight Slate** (Dark mode graphite & neon blue).
-  - **Emerald Velvet Table** (Monte Carlo casino green & gold).
-  - **Sapphire Night** (Deep indigo with icy highlights).
-  - System-wide **Dark Mode** and **Light Mode** toggle.
+  - Classic Walnut Wood (Traditional tournament game board).
+  - Midnight Slate (Modern graphite and neon blue).
+  - Emerald Velvet Table (Monte Carlo casino green and gold).
+  - Sapphire Night (Deep indigo with contrast highlights).
+  - System-wide Dark Mode and Light Mode toggle.
 - **Bilingual Support (i18n):**
   - Full Turkish (Tavla) and English language support.
-- **Match History & Leaderboard:**
+- **Match History & Performance Metrics:**
   - Persisted local statistics (Wins, Losses, Win Rate, Total Points, Mars count).
   - Interactive rules handbook modal.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
+- Node.js (version 18 or higher)
 - npm or yarn
 
 ### Installation
@@ -73,7 +73,7 @@ npm run preview
 
 ---
 
-## 🛠️ Architecture
+## Architecture
 
 ```
 src/
@@ -85,25 +85,25 @@ src/
 │   └── statsService.ts       # Match stats, Mars tracking, and history storage
 ├── utils/
 │   ├── sound.ts              # Web Audio API procedural sound synthesizer
-│   └── i18n.ts               # Turkish & English localization
+│   └── i18n.ts               # Turkish and English localization
 ├── components/
-│   ├── Header.tsx            # Navigation, branding & quick toggles
-│   ├── BackgammonBoard.tsx   # SVG & CSS 24-point board, bar, bear-off trays
+│   ├── Header.tsx            # Navigation, branding and quick toggles
+│   ├── BackgammonBoard.tsx   # Board rendering, bar, bear-off trays
 │   ├── DiceView.tsx          # 3D animated rolling dice with dot faces
-│   ├── GameSidebar.tsx       # Player cards, pip counts, controls & event log
-│   ├── GameOverModal.tsx     # Victory celebration with Mars & confetti
-│   ├── SettingsModal.tsx     # Themes, mode, difficulty, audio & language
+│   ├── GameSidebar.tsx       # Player cards, pip counts, controls and event log
+│   ├── GameOverModal.tsx     # Victory celebration with Mars and confetti
+│   ├── SettingsModal.tsx     # Themes, mode, difficulty, audio and language
 │   ├── RulesModal.tsx        # Visual guide for Backgammon rules
-│   └── StatsModal.tsx        # Performance stats & match records
+│   └── StatsModal.tsx        # Performance stats and match records
 ├── styles/
-│   ├── theme.css             # Design tokens, palette & 4 board styles
-│   └── components.css        # Responsive layouts & micro-animations
+│   ├── theme.css             # Design tokens, palette and board styles
+│   └── components.css        # Responsive layouts and animations
 ├── App.tsx                   # Central game controller
-└── main.tsx                  # React 19 entry point
+└── main.tsx                  # React entry point
 ```
 
 ---
 
-## 📜 License
+## License
 
-MIT License © 2026 [Kaiwen](https://github.com/ImtheKaiwen)
+MIT License (c) 2026 Kaiwen

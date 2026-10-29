@@ -305,6 +305,7 @@
   box-shadow: 0 0 10px #10b981;
   position: absolute;
   z-index: 10;
+  pointer-events: none;
   animation: pulse-marker 1.4s infinite;
 }
 
