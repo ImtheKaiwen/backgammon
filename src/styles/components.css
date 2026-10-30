@@ -2,6 +2,30 @@
    KAIWEN BACKGAMMON - COMPONENTS STYLESHEET
    ========================================================================== */
 
+/* Responsive Board Variables (Default desktop values) */
+:root {
+  --board-frame-pad: 14px;
+  --board-gap: 12px;
+  --bar-width: 56px;
+  --tray-width: 58px;
+  --tray-chip-width: 44px;
+  --checker-size: 38px;
+  --checker-overlap: -14px;
+  --checker-ring-size: 22px;
+  --checker-badge-font: 0.72rem;
+  --point-num-font: 0.65rem;
+  --pip-marker-size: 14px;
+}
+
+/* Mobile topbar default hidden on desktop */
+.mobile-topbar {
+  display: none;
+}
+
+.left-nav-backdrop {
+  display: none;
+}
+
 /* App Container Layout */
 .app-container {
   display: flex;
@@ -60,6 +84,16 @@
   align-items: center;
   gap: 10px;
   overflow: hidden;
+}
+
+.left-nav-brand-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.collapse-toggle-btn.mobile-close-btn {
+  display: none;
 }
 
 .left-nav.collapsed .left-nav-brand {
@@ -340,10 +374,10 @@
   aspect-ratio: 16 / 10.5;
   background-color: var(--board-outer);
   border-radius: var(--radius-xl);
-  padding: 14px;
+  padding: var(--board-frame-pad, 14px);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.15);
   display: flex;
-  gap: 12px;
+  gap: var(--board-gap, 12px);
   border: 4px solid rgba(255, 255, 255, 0.08);
   user-select: none;
 }
@@ -370,7 +404,7 @@
 
 /* Central Bar */
 .board-center-bar {
-  width: 56px;
+  width: var(--bar-width, 56px);
   background-color: var(--board-bar);
   border-left: 2px solid rgba(0, 0, 0, 0.4);
   border-right: 2px solid rgba(0, 0, 0, 0.4);
@@ -423,6 +457,8 @@
   flex-direction: column;
   align-items: center;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .point-column.row-top {
@@ -470,7 +506,7 @@
 /* Point Number Indicator */
 .point-number {
   position: absolute;
-  font-size: 0.65rem;
+  font-size: var(--point-num-font, 0.65rem);
   font-weight: 700;
   font-family: var(--font-mono);
   color: rgba(0, 0, 0, 0.45);
@@ -496,8 +532,8 @@
 }
 
 .target-pip-marker {
-  width: 14px;
-  height: 14px;
+  width: var(--pip-marker-size, 14px);
+  height: var(--pip-marker-size, 14px);
   border-radius: 50%;
   background: #10b981;
   border: 2px solid #ffffff;
@@ -603,8 +639,8 @@
 }
 
 .checker-piece {
-  width: 38px;
-  height: 38px;
+  width: var(--checker-size, 38px);
+  height: var(--checker-size, 38px);
   border-radius: 50%;
   position: relative;
   display: flex;
@@ -612,7 +648,9 @@
   justify-content: center;
   cursor: pointer;
   transition: transform var(--tr-fast), box-shadow var(--tr-fast);
-  margin: -14px 0;
+  margin: var(--checker-overlap, -14px) 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .checker-piece:first-child {
@@ -634,8 +672,8 @@
 
 /* Inner embossed ring of checker */
 .checker-inner-ring {
-  width: 22px;
-  height: 22px;
+  width: var(--checker-ring-size, 22px);
+  height: var(--checker-ring-size, 22px);
   border-radius: 50%;
   border: 1px dashed rgba(0, 0, 0, 0.2);
   display: flex;
@@ -652,7 +690,7 @@
 }
 
 .checker-count-badge {
-  font-size: 0.72rem;
+  font-size: var(--checker-badge-font, 0.72rem);
   font-weight: 800;
   font-family: var(--font-mono);
 }
@@ -675,7 +713,7 @@
    BEAR-OFF TRAY (Toplanan Taşlar Bölümü)
    -------------------------------------------------------------------------- */
 .bear-off-tray {
-  width: 58px;
+  width: var(--tray-width, 58px);
   background-color: var(--board-bar);
   border-radius: var(--radius-lg);
   border: 2px solid rgba(0, 0, 0, 0.3);
@@ -713,7 +751,7 @@
 }
 
 .tray-checker-chip {
-  width: 44px;
+  width: var(--tray-chip-width, 44px);
   height: 9px;
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -2294,3 +2332,364 @@
   padding: 2px 6px;
   border-radius: var(--radius-sm);
 }
+
+/* ==========================================================================
+   RESPONSIVE DESIGN & MOBILE OPTIMIZATIONS
+   (Desktop layout > 1024px remains completely preserved)
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  :root {
+    --board-frame-pad: clamp(6px, 1.4vw, 12px);
+    --board-gap: clamp(4px, 1.2vw, 10px);
+    --bar-width: clamp(26px, 6vw, 44px);
+    --tray-width: clamp(28px, 6.5vw, 48px);
+    --tray-chip-width: clamp(22px, 5vw, 36px);
+    --checker-size: clamp(20px, 4.8vw, 34px);
+    --checker-overlap: clamp(-12px, -2vw, -7px);
+    --checker-ring-size: clamp(12px, 2.8vw, 20px);
+    --checker-badge-font: clamp(0.55rem, 1.8vw, 0.7rem);
+    --point-num-font: clamp(0.52rem, 1.5vw, 0.62rem);
+    --pip-marker-size: clamp(10px, 2.2vw, 14px);
+  }
+
+  /* Container & Main Workspace */
+  .app-container {
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  .app-main-workspace {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Mobile Top Bar */
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    padding: 0 0.85rem;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+    z-index: 50;
+    box-sizing: border-box;
+  }
+
+  .mobile-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .mobile-menu-trigger {
+    background: none;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+  }
+
+  .mobile-menu-trigger:hover,
+  .mobile-menu-trigger:active {
+    background: var(--bg-hover);
+  }
+
+  .mobile-brand-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-brand-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+
+  .mobile-brand-title {
+    font-size: 0.92rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--text-main);
+  }
+
+  .mobile-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .mobile-turn-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 9px;
+    border-radius: var(--radius-full);
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-subtle);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .mobile-turn-pip {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+  }
+
+  .mobile-turn-pip.white {
+    background: #ffffff;
+    border: 1.5px solid #94a3b8;
+  }
+
+  .mobile-turn-pip.black {
+    background: #0f172a;
+    border: 1.5px solid #64748b;
+  }
+
+  .mobile-header-btn {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-main);
+    cursor: pointer;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+    transition: background var(--tr-fast);
+  }
+
+  .mobile-header-btn:active {
+    background: var(--bg-hover);
+  }
+
+  /* Off-canvas LeftNav Drawer */
+  .left-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px !important;
+    max-width: 82vw;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+    padding: 1.25rem 1rem;
+  }
+
+  .left-nav.mobile-open {
+    transform: translateX(0);
+  }
+
+  .left-nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 199;
+    animation: modal-fade-in 0.2s ease-out;
+  }
+
+  .collapse-toggle-btn.desktop-only {
+    display: none;
+  }
+
+  .collapse-toggle-btn.mobile-close-btn {
+    display: flex;
+  }
+
+  /* Stage & Sidebar */
+  .main-stage {
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .board-arena {
+    flex: none;
+    width: 100%;
+    padding: 10px 8px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  .bg-board-frame {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .game-sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border-subtle);
+    flex: none;
+    overflow: visible;
+  }
+
+  .sidebar-scroll {
+    overflow-y: visible;
+    padding: 1rem 0.85rem;
+    gap: 0.85rem;
+  }
+
+  .turn-action-btn {
+    min-height: 46px;
+    font-size: 0.92rem;
+    touch-action: manipulation;
+  }
+
+  /* Modals on Tablet/Mobile */
+  .modal-backdrop {
+    padding: 0.75rem;
+  }
+
+  .modal-card {
+    max-width: 96vw;
+    padding: 1.25rem 1rem;
+    max-height: 90dvh;
+  }
+
+  .settings-modal-card {
+    padding: 1.1rem 1rem;
+    max-width: 96vw;
+  }
+
+  .drawer-panel {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --board-frame-pad: clamp(4px, 1.2vw, 8px);
+    --board-gap: clamp(3px, 1vw, 6px);
+    --bar-width: clamp(20px, 5.5vw, 28px);
+    --tray-width: clamp(24px, 6vw, 32px);
+    --tray-chip-width: clamp(18px, 4.5vw, 26px);
+    --checker-size: clamp(18px, 4.6vw, 24px);
+    --checker-overlap: clamp(-9px, -1.8vw, -6px);
+    --checker-ring-size: clamp(10px, 2.5vw, 14px);
+    --checker-badge-font: 0.55rem;
+    --point-num-font: 0.5rem;
+    --pip-marker-size: 10px;
+  }
+
+  .board-arena {
+    padding: 6px 4px;
+  }
+
+  /* Onboarding guide mobile optimization */
+  .onboarding-card {
+    padding: 1.25rem 1rem;
+    max-height: 92dvh;
+  }
+
+  .stepper-breadcrumbs {
+    gap: 4px;
+    margin-bottom: 1.25rem;
+  }
+
+  .stepper-name {
+    display: none; /* Hide verbose text to eliminate breadcrumb overflow */
+  }
+
+  .onboarding-title {
+    font-size: 1.15rem;
+  }
+
+  .onboarding-subtitle {
+    font-size: 0.82rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .onboarding-bullets-container {
+    padding: 0.85rem 0.95rem;
+    gap: 0.6rem;
+  }
+
+  .bullet-text {
+    font-size: 0.8rem;
+  }
+
+  /* Settings modal rows */
+  .custom-setting-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .custom-setting-row .segmented-control {
+    width: 100%;
+    display: flex;
+  }
+
+  .custom-setting-row .segmented-control .segmented-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .theme-text-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Opening roll battle */
+  .opening-players-row {
+    gap: 0.5rem;
+  }
+
+  .opening-player-box {
+    padding: 0.5rem;
+  }
+
+  .opening-die-display {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+
+  .tray-label {
+    font-size: 0.55rem;
+    letter-spacing: -0.02em;
+  }
+}
+
+.app-main-workspace::-webkit-scrollbar {
+  width: 5px;
+}
+
+.app-main-workspace::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.app-main-workspace::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: var(--radius-full);
+}
+

@@ -12,7 +12,8 @@ import {
   VolumeX,
   Languages,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  X
 } from 'lucide-react';
 import type { Language } from '../utils/i18n';
 import { translations } from '../utils/i18n';
@@ -21,6 +22,8 @@ interface LeftNavProps {
   lang: Language;
   themeMode: 'light' | 'dark';
   isMuted: boolean;
+  isOpenMobile?: boolean;
+  onCloseMobile?: () => void;
   onNewGame: () => void;
   onOpenHistory: () => void;
   onOpenStats: () => void;
@@ -35,6 +38,8 @@ export const LeftNav: React.FC<LeftNavProps> = ({
   lang,
   themeMode,
   isMuted,
+  isOpenMobile = false,
+  onCloseMobile,
   onNewGame,
   onOpenHistory,
   onOpenStats,
@@ -56,73 +61,96 @@ export const LeftNav: React.FC<LeftNavProps> = ({
     });
   };
 
+  const handleItemClick = (action?: () => void) => {
+    if (action) action();
+    if (onCloseMobile) onCloseMobile();
+  };
+
   const t = translations[lang];
   const baseUrl = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
   const logoSrc = themeMode === 'dark' ? `${baseUrl}kaiwen-logo-white.png` : `${baseUrl}kaiwen-logo-dark.png`;
+  const showLabels = !isCollapsed || isOpenMobile;
 
   return (
-    <nav className={`left-nav ${isCollapsed ? 'collapsed' : ''}`}>
+    <>
+      {/* MOBILE BACKDROP */}
+      {isOpenMobile && (
+        <div className="left-nav-backdrop" onClick={onCloseMobile} />
+      )}
+
+      <nav className={`left-nav ${isCollapsed && !isOpenMobile ? 'collapsed' : ''} ${isOpenMobile ? 'mobile-open' : ''}`}>
       {/* BRAND HEADER */}
       <div>
         <div className="left-nav-brand">
           <div className="left-nav-brand-main">
             <img src={logoSrc} alt="Logo" className="left-nav-logo" />
-            {!isCollapsed && <span className="left-nav-title">BACKGAMMON</span>}
+            {showLabels && <span className="left-nav-title">BACKGAMMON</span>}
           </div>
-          <button
-            type="button"
-            className="collapse-toggle-btn"
-            onClick={toggleCollapse}
-            title={isCollapsed ? (lang === 'en' ? 'Expand Menu' : 'Menüyü Genişlet') : (lang === 'en' ? 'Collapse Menu' : 'Menüyü Küçült')}
-          >
-            {isCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
-          </button>
+          <div className="left-nav-brand-actions">
+            <button
+              type="button"
+              className="collapse-toggle-btn desktop-only"
+              onClick={toggleCollapse}
+              title={isCollapsed ? (lang === 'en' ? 'Expand Menu' : 'Menüyü Genişlet') : (lang === 'en' ? 'Collapse Menu' : 'Menüyü Küçült')}
+            >
+              {isCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+            </button>
+            <button
+              type="button"
+              className="collapse-toggle-btn mobile-close-btn"
+              onClick={onCloseMobile}
+              title={lang === 'en' ? 'Close Menu' : 'Menüyü Kapat'}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* MAIN NAVIGATION ITEMS */}
         <div className="left-nav-menu">
           <button
             className="left-nav-item active"
+            onClick={() => handleItemClick()}
             title={lang === 'en' ? 'Play Match' : 'Oyuna Dön'}
           >
             <Gamepad2 size={19} className="nav-item-icon" />
-            {!isCollapsed && <span>{lang === 'en' ? 'Play' : 'Oyna'}</span>}
+            {showLabels && <span>{lang === 'en' ? 'Play' : 'Oyna'}</span>}
           </button>
 
           <button
             className="left-nav-item"
-            onClick={onOpenHistory}
+            onClick={() => handleItemClick(onOpenHistory)}
             title={lang === 'en' ? 'Move History & Log' : 'Hamle Geçmişi'}
           >
             <History size={19} className="nav-item-icon" />
-            {!isCollapsed && <span>{lang === 'en' ? 'History' : 'Hamleler'}</span>}
+            {showLabels && <span>{lang === 'en' ? 'History' : 'Hamleler'}</span>}
           </button>
 
           <button
             className="left-nav-item"
-            onClick={onOpenStats}
+            onClick={() => handleItemClick(onOpenStats)}
             title={t.stats}
           >
             <BarChart2 size={19} className="nav-item-icon" />
-            {!isCollapsed && <span>{t.stats}</span>}
+            {showLabels && <span>{t.stats}</span>}
           </button>
 
           <button
             className="left-nav-item"
-            onClick={onOpenOnboarding}
+            onClick={() => handleItemClick(onOpenOnboarding)}
             title={lang === 'en' ? 'How to Play Guide' : 'Nasıl Oynanır'}
           >
             <GraduationCap size={19} className="nav-item-icon" />
-            {!isCollapsed && <span>{lang === 'en' ? 'How to Play' : 'Nasıl Oynanır'}</span>}
+            {showLabels && <span>{lang === 'en' ? 'How to Play' : 'Nasıl Oynanır'}</span>}
           </button>
 
           <button
             className="left-nav-item"
-            onClick={onOpenSettings}
+            onClick={() => handleItemClick(onOpenSettings)}
             title={t.settings}
           >
             <Settings size={19} className="nav-item-icon" />
-            {!isCollapsed && <span>{t.settings}</span>}
+            {showLabels && <span>{t.settings}</span>}
           </button>
         </div>
       </div>
@@ -131,14 +159,14 @@ export const LeftNav: React.FC<LeftNavProps> = ({
       <div className="left-nav-bottom">
         <button
           className="left-nav-action-btn"
-          onClick={onNewGame}
+          onClick={() => handleItemClick(onNewGame)}
           title={t.newGame}
         >
           <RotateCcw size={16} />
-          {!isCollapsed && <span>{t.newGame}</span>}
+          {showLabels && <span>{t.newGame}</span>}
         </button>
 
-        <div className={`left-nav-bottom-row ${isCollapsed ? 'collapsed' : ''}`}>
+        <div className={`left-nav-bottom-row ${isCollapsed && !isOpenMobile ? 'collapsed' : ''}`}>
           <button
             className="left-nav-icon-btn"
             onClick={onToggleTheme}
@@ -165,5 +193,6 @@ export const LeftNav: React.FC<LeftNavProps> = ({
         </div>
       </div>
     </nav>
+    </>
   );
 };

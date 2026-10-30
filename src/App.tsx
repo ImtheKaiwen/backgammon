@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Menu, Settings as SettingsIcon } from 'lucide-react';
 import type {
   Player,
   BoardState,
@@ -24,7 +25,7 @@ import {
 } from './engine/backgammonEngine';
 import { getBestMoveSequence } from './services/backgammonAi';
 import { sound } from './utils/sound';
-import { getStoredLanguage, setStoredLanguage } from './utils/i18n';
+import { getStoredLanguage, setStoredLanguage, translations } from './utils/i18n';
 import type { Language } from './utils/i18n';
 import { recordMatchResult } from './services/statsService';
 
@@ -139,6 +140,7 @@ export const App: React.FC = () => {
   const [showHistoryDrawer, setShowHistoryDrawer] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showStats, setShowStats] = useState<boolean>(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState<boolean>(false);
 
   // AI execution lock ref
   const isAiActingRef = useRef<boolean>(false);
@@ -662,6 +664,7 @@ export const App: React.FC = () => {
   const blackPip = calculatePipCount(board, bar, 'black');
   const canRoll = matchPhase === 'playing' && !hasRolled && !isRolling && !gameOverResult && !isReplaying && (gameMode === 'pvp' || currentTurn === 'white');
   const canPass = matchPhase === 'playing' && hasRolled && turnHistory.length === 0 && movesLeft.length > 0 && getAllLegalMoves(board, bar, currentTurn, movesLeft).length === 0;
+  const baseUrl = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 
   return (
     <div className="app-container">
@@ -670,6 +673,8 @@ export const App: React.FC = () => {
         lang={lang}
         themeMode={themeMode}
         isMuted={isMuted}
+        isOpenMobile={isMobileNavOpen}
+        onCloseMobile={() => setIsMobileNavOpen(false)}
         onNewGame={handleNewGame}
         onOpenHistory={() => setShowHistoryDrawer(true)}
         onOpenStats={() => setShowStats(true)}
@@ -686,6 +691,49 @@ export const App: React.FC = () => {
 
       {/* MAIN WORKSPACE AREA */}
       <div className="app-main-workspace">
+        {/* MOBILE TOPBAR (ONLY VISIBLE ON <= 1024px) */}
+        <header className="mobile-topbar">
+          <div className="mobile-topbar-left">
+            <button
+              type="button"
+              className="mobile-menu-trigger"
+              onClick={() => setIsMobileNavOpen(true)}
+              title={lang === 'en' ? 'Open Menu' : 'Menüyü Aç'}
+            >
+              <Menu size={22} />
+            </button>
+            <div className="mobile-brand-pill">
+              <img
+                src={themeMode === 'dark' ? `${baseUrl}kaiwen-logo-white.png` : `${baseUrl}kaiwen-logo-dark.png`}
+                alt="Kaiwen"
+                className="mobile-brand-logo"
+              />
+              <span className="mobile-brand-title">BACKGAMMON</span>
+            </div>
+          </div>
+
+          <div className="mobile-topbar-right">
+            {matchPhase === 'playing' && (
+              <div className={`mobile-turn-indicator ${currentTurn}`}>
+                <div className={`mobile-turn-pip ${currentTurn}`} />
+                <span className="mobile-turn-label">
+                  {currentTurn === 'white'
+                    ? (lang === 'en' ? 'White' : 'Beyaz')
+                    : (gameMode === 'ai' ? 'Kaiwen AI' : (lang === 'en' ? 'Black' : 'Siyah'))}
+                </span>
+              </div>
+            )}
+            <button
+              type="button"
+              className="mobile-header-btn"
+              onClick={() => setShowSettings(true)}
+              title={translations[lang].settings}
+            >
+              <SettingsIcon size={19} />
+            </button>
+          </div>
+        </header>
+
         {/* MAIN STAGE */}
         <main className="main-stage">
           {/* BOARD ARENA */}
