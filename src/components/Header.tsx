@@ -47,9 +47,7 @@ export const Header: React.FC<HeaderProps> = ({
           <img src={logoSrc} alt="Kaiwen Logo" className="brand-logo-img" />
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <h1 className="brand-title">KAIWEN</h1>
-          <span className="brand-title-sub">BACKGAMMON</span>
-          <span className="brand-badge">PRO</span>
+          <h1 className="brand-title">BACKGAMMON</h1>
         </div>
       </div>
 

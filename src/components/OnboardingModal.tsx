@@ -136,7 +136,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
         <div className="onboarding-top-bar">
           <div className="onboarding-logo-wrapper">
             <img src={logoSrc} alt="Kaiwen" className="onboarding-logo-img" />
-            <span className="onboarding-logo-text">KAIWEN BACKGAMMON</span>
+            <span className="onboarding-logo-text">BACKGAMMON</span>
           </div>
           <button className="onboarding-close-btn" onClick={onClose} title="Kapat">
             <X size={18} />

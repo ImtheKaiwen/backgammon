@@ -28,6 +28,7 @@ import { getStoredLanguage, setStoredLanguage } from './utils/i18n';
 import type { Language } from './utils/i18n';
 import { recordMatchResult } from './services/statsService';
 
+import { LeftNav } from './components/LeftNav';
 import { Header } from './components/Header';
 import { BackgammonBoard } from './components/BackgammonBoard';
 import { GameSidebar } from './components/GameSidebar';
@@ -485,69 +486,93 @@ export const App: React.FC = () => {
   const whitePip = calculatePipCount(board, bar, 'white');
   const blackPip = calculatePipCount(board, bar, 'black');
   const canRoll = !hasRolled && !isRolling && !gameOverResult && (gameMode === 'pvp' || currentTurn === 'white');
-  const canPass = hasRolled && movesLeft.length > 0 && getAllLegalMoves(board, bar, currentTurn, movesLeft).length === 0;
+  // Pass button should ONLY appear if player has NOT moved any checker and has 0 legal moves from the start
+  const canPass = hasRolled && turnHistory.length === 0 && movesLeft.length > 0 && getAllLegalMoves(board, bar, currentTurn, movesLeft).length === 0;
 
   return (
     <div className="app-container">
-      {/* HEADER */}
-      <Header
+      {/* LEFT NAVIGATION SIDEBAR (CHESS-STYLE MAIN MENU) */}
+      <LeftNav
         lang={lang}
         themeMode={themeMode}
         isMuted={isMuted}
         onNewGame={handleNewGame}
+        onOpenHistory={() => setShowHistoryDrawer(true)}
+        onOpenStats={() => setShowStats(true)}
+        onOpenOnboarding={() => setShowOnboarding(true)}
+        onOpenRules={() => setShowRules(true)}
+        onOpenSettings={() => setShowSettings(true)}
         onToggleTheme={() => setThemeMode(m => (m === 'light' ? 'dark' : 'light'))}
         onToggleSound={() => setIsMuted(sound.toggleMute())}
-        onOpenSettings={() => setShowSettings(true)}
-        onOpenRules={() => setShowOnboarding(true)}
-        onOpenStats={() => setShowStats(true)}
+        onToggleLang={() => {
+          const nextLang = lang === 'tr' ? 'en' : 'tr';
+          setLang(nextLang);
+          setStoredLanguage(nextLang);
+        }}
       />
 
-      {/* MAIN STAGE */}
-      <main className="main-stage">
-        {/* BOARD ARENA */}
-        <section className="board-arena">
-          <BackgammonBoard
-            board={board}
+      {/* MAIN WORKSPACE AREA */}
+      <div className="app-main-workspace">
+        {/* HEADER */}
+        <Header
+          lang={lang}
+          themeMode={themeMode}
+          isMuted={isMuted}
+          onNewGame={handleNewGame}
+          onToggleTheme={() => setThemeMode(m => (m === 'light' ? 'dark' : 'light'))}
+          onToggleSound={() => setIsMuted(sound.toggleMute())}
+          onOpenSettings={() => setShowSettings(true)}
+          onOpenRules={() => setShowOnboarding(true)}
+          onOpenStats={() => setShowStats(true)}
+        />
+
+        {/* MAIN STAGE */}
+        <main className="main-stage">
+          {/* BOARD ARENA */}
+          <section className="board-arena">
+            <BackgammonBoard
+              board={board}
+              bar={bar}
+              borneOff={borneOff}
+              currentTurn={currentTurn}
+              selectedSource={selectedSource}
+              legalMoves={legalMoves}
+              onSelectPoint={handleSelectPoint}
+              onSelectBar={handleSelectBar}
+              onSelectBearOff={handleSelectBearOff}
+              theme={boardTheme}
+            />
+          </section>
+
+          {/* SIDEBAR */}
+          <GameSidebar
+            lang={lang}
+            gameMode={gameMode}
+            currentTurn={currentTurn}
+            whitePip={whitePip}
+            blackPip={blackPip}
             bar={bar}
             borneOff={borneOff}
-            currentTurn={currentTurn}
-            selectedSource={selectedSource}
-            legalMoves={legalMoves}
-            onSelectPoint={handleSelectPoint}
-            onSelectBar={handleSelectBar}
-            onSelectBearOff={handleSelectBearOff}
-            theme={boardTheme}
+            dice={dice}
+            movesLeft={movesLeft}
+            hasRolled={hasRolled}
+            isRolling={isRolling}
+            canRoll={canRoll}
+            canPass={canPass}
+            canUndo={turnHistory.length > 0}
+            canConfirm={!autoConfirmMoves && turnHistory.length > 0 && currentTurn === 'white' && !gameOverResult}
+            onConfirmMove={handleConfirmMove}
+            onRoll={handleRollDice}
+            onPass={handlePassTurn}
+            onUndo={handleUndo}
+            onResign={handleResign}
+            lastMove={lastMove}
+            onOpenHistory={() => setShowHistoryDrawer(true)}
+            isAiThinking={isAiThinking}
+            autoPassNotice={autoPassNotice}
           />
-        </section>
-
-        {/* SIDEBAR */}
-        <GameSidebar
-          lang={lang}
-          gameMode={gameMode}
-          currentTurn={currentTurn}
-          whitePip={whitePip}
-          blackPip={blackPip}
-          bar={bar}
-          borneOff={borneOff}
-          dice={dice}
-          movesLeft={movesLeft}
-          hasRolled={hasRolled}
-          isRolling={isRolling}
-          canRoll={canRoll}
-          canPass={canPass}
-          canUndo={turnHistory.length > 0}
-          canConfirm={!autoConfirmMoves && turnHistory.length > 0 && currentTurn === 'white' && !gameOverResult}
-          onConfirmMove={handleConfirmMove}
-          onRoll={handleRollDice}
-          onPass={handlePassTurn}
-          onUndo={handleUndo}
-          onResign={handleResign}
-          lastMove={lastMove}
-          onOpenHistory={() => setShowHistoryDrawer(true)}
-          isAiThinking={isAiThinking}
-          autoPassNotice={autoPassNotice}
-        />
-      </main>
+        </main>
+      </div>
 
       {/* STEP-BY-STEP ONBOARDING HOW TO PLAY MODAL */}
       {showOnboarding && (

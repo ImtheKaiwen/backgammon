@@ -205,6 +205,102 @@ export function getLegalMovesForSource(
         });
       }
     }
+
+    // Compound moves from bar (if player has 1 checker on the bar and >= 2 dice)
+    if (bar[player] === 1 && movesLeft.length >= 2) {
+      const isDouble = movesLeft.every(m => m === movesLeft[0]);
+
+      if (!isDouble && movesLeft.length >= 2) {
+        const d1 = movesLeft[0];
+        const d2 = movesLeft[1];
+        const sum = d1 + d2;
+
+        // Path 1: enter with d1, then move d2
+        let path1Valid = false;
+        let path1Hit = false;
+        let target1 = -1;
+
+        const enter1 = player === 'white' ? 24 - d1 : d1 - 1;
+        if (isPointOpen(board, enter1, player).open) {
+          const step2 = player === 'white' ? enter1 - d2 : enter1 + d2;
+          if (step2 >= 0 && step2 <= 23) {
+            const { open, isHit } = isPointOpen(board, step2, player);
+            if (open) {
+              path1Valid = true;
+              path1Hit = isHit;
+              target1 = step2;
+            }
+          }
+        }
+
+        // Path 2: enter with d2, then move d1
+        let path2Valid = false;
+        let path2Hit = false;
+        let target2 = -1;
+
+        const enter2 = player === 'white' ? 24 - d2 : d2 - 1;
+        if (isPointOpen(board, enter2, player).open) {
+          const step2 = player === 'white' ? enter2 - d1 : enter2 + d1;
+          if (step2 >= 0 && step2 <= 23) {
+            const { open, isHit } = isPointOpen(board, step2, player);
+            if (open) {
+              path2Valid = true;
+              path2Hit = isHit;
+              target2 = step2;
+            }
+          }
+        }
+
+        if (path1Valid || path2Valid) {
+          const chosenTarget = path1Valid ? target1 : target2;
+          const chosenHit = path1Valid ? path1Hit : path2Hit;
+          const chosenSeq = path1Valid ? [d1, d2] : [d2, d1];
+
+          if (!legalMoves.some(m => m.to === chosenTarget)) {
+            legalMoves.push({
+              from: 'bar',
+              to: chosenTarget,
+              dieUsed: sum,
+              diceSequence: chosenSeq,
+              isHit: chosenHit,
+              isCompound: true
+            });
+          }
+        }
+      } else if (isDouble) {
+        const d = movesLeft[0];
+        const enterPoint = player === 'white' ? 24 - d : d - 1;
+        if (isPointOpen(board, enterPoint, player).open) {
+          let curPoint = enterPoint;
+          const curSeq = [d];
+          for (let k = 2; k <= movesLeft.length; k++) {
+            const nextPoint = player === 'white' ? curPoint - d : curPoint + d;
+            curSeq.push(d);
+            if (nextPoint >= 0 && nextPoint <= 23) {
+              const { open, isHit } = isPointOpen(board, nextPoint, player);
+              if (open) {
+                if (!legalMoves.some(m => m.to === nextPoint)) {
+                  legalMoves.push({
+                    from: 'bar',
+                    to: nextPoint,
+                    dieUsed: d * k,
+                    diceSequence: [...curSeq],
+                    isHit,
+                    isCompound: true
+                  });
+                }
+                curPoint = nextPoint;
+              } else {
+                break;
+              }
+            } else {
+              break;
+            }
+          }
+        }
+      }
+    }
+
     return legalMoves;
   }
 
@@ -641,7 +737,7 @@ export function checkGameOver(
     const opponentBorne = borneOff.black;
     let winType: WinType = 'normal';
     let points = 1;
-    let reason = 'Normal Galibiyet (1 Puan)';
+    let reason = 'Tüm 15 taş tahtadan başarıyla toplandı.';
 
     if (opponentBorne === 0) {
       // Check if black has checkers on the bar or in White's home board (points 0 to 5)
@@ -672,7 +768,7 @@ export function checkGameOver(
     const opponentBorne = borneOff.white;
     let winType: WinType = 'normal';
     let points = 1;
-    let reason = 'Normal Galibiyet (1 Puan)';
+    let reason = 'Tüm 15 taş tahtadan başarıyla toplandı.';
 
     if (opponentBorne === 0) {
       // Check if white has checkers on bar or in Black's home board (points 18 to 23)
