@@ -8,8 +8,6 @@ import {
   Moon,
   Volume2,
   VolumeX,
-  CheckCircle2,
-  ShieldCheck,
   Check
 } from 'lucide-react';
 import type {
@@ -35,6 +33,8 @@ interface SettingsModalProps {
   onToggleSound: () => void;
   autoConfirmMoves: boolean;
   onToggleAutoConfirm: (enabled: boolean) => void;
+  aiAssistantEnabled: boolean;
+  onToggleAiAssistant: (enabled: boolean) => void;
   onClose: () => void;
 }
 
@@ -53,51 +53,48 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onToggleSound,
   autoConfirmMoves,
   onToggleAutoConfirm,
+  aiAssistantEnabled,
+  onToggleAiAssistant,
   onClose
 }) => {
   const t = translations[lang];
 
-  const themes: { id: BoardTheme; name: string; color: string; desc: string }[] = [
+  const themes: { id: BoardTheme; name: string; desc: string }[] = [
     {
       id: 'classic-wood',
       name: t.classicWood,
-      color: '#5c2e14',
       desc: lang === 'en' ? 'Walnut & Oak' : 'Ceviz & Meşe'
     },
     {
       id: 'dark-slate',
       name: t.darkSlate,
-      color: '#1e293b',
       desc: lang === 'en' ? 'Obsidian Slate' : 'Obsidyen Gece'
     },
     {
       id: 'emerald-table',
       name: t.emeraldTable,
-      color: '#064e3b',
       desc: lang === 'en' ? 'Royal Velvet' : 'Kraliyet Kadife'
     },
     {
       id: 'sapphire-night',
       name: t.sapphireNight,
-      color: '#1e3a8a',
       desc: lang === 'en' ? 'Deep Ocean' : 'Derin Safir'
     }
   ];
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-card settings-modal-card">
-        <div className="modal-header-icon badge-info">
-          <Settings size={28} />
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card settings-modal-card" onClick={e => e.stopPropagation()}>
+        {/* COMPACT TOP HEADER */}
+        <div className="settings-modal-header">
+          <span className="settings-modal-title">{t.settings}</span>
+          <button type="button" className="settings-close-x" onClick={onClose} title={t.close}>
+            <X size={18} />
+          </button>
         </div>
 
-        <h2 className="modal-title">{t.settings}</h2>
-        <p className="modal-desc" style={{ marginBottom: '1.25rem' }}>
-          {lang === 'en' ? 'Customize game rules, controls and appearance' : 'Oyun kuralları, kontroller ve görsel tercihleri düzenleyin'}
-        </p>
-
         <div className="settings-content-flow">
-          {/* 1. OYUN MODU (SEGMENTED PILL) */}
+          {/* 1. OYUN MODU */}
           <div className="custom-setting-row">
             <div className="custom-setting-info">
               <span className="custom-setting-title">{t.gameMode}</span>
@@ -160,26 +157,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
 
-          {/* 3. TAHTA TEMASI (VISUAL SWATCHES) */}
+          {/* 3. TAHTA TEMASI (TEXT-ONLY TILES, NO COLOR CIRCLES) */}
           <div className="custom-setting-col">
             <span className="custom-setting-title">{t.theme}</span>
-            <div className="theme-swatch-grid">
+            <div className="theme-text-grid">
               {themes.map(th => {
                 const isSelected = boardTheme === th.id;
                 return (
                   <button
                     key={th.id}
                     type="button"
-                    className={`theme-swatch-card ${isSelected ? 'selected' : ''}`}
+                    className={`theme-text-card ${isSelected ? 'selected' : ''}`}
                     onClick={() => onChangeBoardTheme(th.id)}
                   >
-                    <div className="theme-swatch-circle" style={{ backgroundColor: th.color }}>
-                      {isSelected && <Check size={12} color="#ffffff" />}
+                    <div className="theme-text-header">
+                      <span className="theme-text-name">{th.name}</span>
+                      {isSelected && <Check size={14} className="theme-check-icon" />}
                     </div>
-                    <div className="theme-swatch-info">
-                      <span className="theme-swatch-name">{th.name}</span>
-                      <span className="theme-swatch-desc">{th.desc}</span>
-                    </div>
+                    <span className="theme-text-desc">{th.desc}</span>
                   </button>
                 );
               })}
@@ -191,7 +186,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="custom-setting-info">
               <span className="custom-setting-title">{t.themeMode}</span>
               <span className="custom-setting-sub">
-                {themeMode === 'light' ? 'Açık arka plan ve yüksek kontrast' : 'Göz yormayan koyu gece modu'}
+                {themeMode === 'light' ? 'Açık tema ve yüksek kontrast' : 'Göz yormayan koyu gece modu'}
               </span>
             </div>
             <div className="segmented-control">
@@ -214,7 +209,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* 5. SES EFEKTLERİ (SWITCH) */}
+          {/* 5. SES EFEKTLERİ */}
           <div className="custom-setting-row">
             <div className="custom-setting-info">
               <span className="custom-setting-title">{t.sound}</span>
@@ -233,7 +228,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
 
-          {/* 6. OTOMATİK HAMLE ONAYI (SWITCH) */}
+          {/* 6. OTOMATİK HAMLE ONAYI */}
           <div className="custom-setting-row">
             <div className="custom-setting-info">
               <span className="custom-setting-title">{t.autoConfirmMoves}</span>
@@ -256,7 +251,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
 
-          {/* 7. DİL SEÇİMİ (SEGMENTED PILL) */}
+          {/* 7. AI YARDIMCISI (KOÇ) */}
+          <div className="custom-setting-row">
+            <div className="custom-setting-info">
+              <span className="custom-setting-title">AI Hamle Koçu & Yardımcısı</span>
+              <span className="custom-setting-sub">
+                Zar attıktan sonra en iyi hamle kombinasyonunu ve rotalarını önerir
+              </span>
+            </div>
+            <button
+              type="button"
+              className={`toggle-switch-btn ${aiAssistantEnabled ? 'active' : ''}`}
+              onClick={() => onToggleAiAssistant(!aiAssistantEnabled)}
+              role="switch"
+              aria-checked={aiAssistantEnabled}
+            >
+              <div className="toggle-switch-thumb">
+                {aiAssistantEnabled ? <Check size={12} /> : <X size={12} />}
+              </div>
+            </button>
+          </div>
+
+          {/* 8. DİL SEÇİMİ */}
           <div className="custom-setting-row">
             <div className="custom-setting-info">
               <span className="custom-setting-title">{t.language}</span>

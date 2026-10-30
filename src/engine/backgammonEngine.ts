@@ -218,10 +218,13 @@ export function getLegalMovesForSource(
         // Path 1: enter with d1, then move d2
         let path1Valid = false;
         let path1Hit = false;
+        let path1IntermediateHit = false;
         let target1 = -1;
 
         const enter1 = player === 'white' ? 24 - d1 : d1 - 1;
-        if (isPointOpen(board, enter1, player).open) {
+        const check1 = isPointOpen(board, enter1, player);
+        if (check1.open) {
+          path1IntermediateHit = check1.isHit;
           const step2 = player === 'white' ? enter1 - d2 : enter1 + d2;
           if (step2 >= 0 && step2 <= 23) {
             const { open, isHit } = isPointOpen(board, step2, player);
@@ -236,10 +239,13 @@ export function getLegalMovesForSource(
         // Path 2: enter with d2, then move d1
         let path2Valid = false;
         let path2Hit = false;
+        let path2IntermediateHit = false;
         let target2 = -1;
 
         const enter2 = player === 'white' ? 24 - d2 : d2 - 1;
-        if (isPointOpen(board, enter2, player).open) {
+        const check2 = isPointOpen(board, enter2, player);
+        if (check2.open) {
+          path2IntermediateHit = check2.isHit;
           const step2 = player === 'white' ? enter2 - d1 : enter2 + d1;
           if (step2 >= 0 && step2 <= 23) {
             const { open, isHit } = isPointOpen(board, step2, player);
@@ -251,10 +257,44 @@ export function getLegalMovesForSource(
           }
         }
 
-        if (path1Valid || path2Valid) {
+        if (path1Valid && path2Valid && target1 === target2 && path1IntermediateHit !== path2IntermediateHit) {
+          // Two distinct strategic routes: one hits an opponent blot on the way, the other passes safely!
+          // Route A: Hits on the way
+          const hitSeq = path1IntermediateHit ? [d1, d2] : [d2, d1];
+          const hitPoint = path1IntermediateHit ? enter1 : enter2;
+          const hitFinal = path1IntermediateHit ? path1Hit : path2Hit;
+          legalMoves.push({
+            from: 'bar',
+            to: target1,
+            dieUsed: sum,
+            diceSequence: hitSeq,
+            isHit: hitFinal || true,
+            isCompound: true,
+            intermediateHits: [hitPoint],
+            intermediatePoint: hitPoint,
+            routeDescription: `Zar ${hitSeq[0]}+${hitSeq[1]} (Hane ${hitPoint + 1}'de Kırarak)`
+          });
+
+          // Route B: Does not hit on the way
+          const safeSeq = !path1IntermediateHit ? [d1, d2] : [d2, d1];
+          const safePoint = !path1IntermediateHit ? enter1 : enter2;
+          const safeFinal = !path1IntermediateHit ? path1Hit : path2Hit;
+          legalMoves.push({
+            from: 'bar',
+            to: target1,
+            dieUsed: sum,
+            diceSequence: safeSeq,
+            isHit: safeFinal,
+            isCompound: true,
+            intermediatePoint: safePoint,
+            routeDescription: `Zar ${safeSeq[0]}+${safeSeq[1]} (Kırmadan)`
+          });
+        } else if (path1Valid || path2Valid) {
           const chosenTarget = path1Valid ? target1 : target2;
           const chosenHit = path1Valid ? path1Hit : path2Hit;
           const chosenSeq = path1Valid ? [d1, d2] : [d2, d1];
+          const intermediateHit = path1Valid ? path1IntermediateHit : path2IntermediateHit;
+          const intermediatePt = path1Valid ? enter1 : enter2;
 
           if (!legalMoves.some(m => m.to === chosenTarget)) {
             legalMoves.push({
@@ -262,8 +302,11 @@ export function getLegalMovesForSource(
               to: chosenTarget,
               dieUsed: sum,
               diceSequence: chosenSeq,
-              isHit: chosenHit,
-              isCompound: true
+              isHit: chosenHit || intermediateHit,
+              isCompound: true,
+              intermediateHits: intermediateHit ? [intermediatePt] : undefined,
+              intermediatePoint: intermediatePt,
+              routeDescription: intermediateHit ? `Zar ${chosenSeq[0]}+${chosenSeq[1]} (Kırarak)` : undefined
             });
           }
         }

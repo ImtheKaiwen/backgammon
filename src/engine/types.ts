@@ -34,6 +34,9 @@ export interface Move {
   diceSequence?: number[];    // individual dice used (e.g. [3, 5] for combined move)
   isHit: boolean;
   isCompound?: boolean;
+  intermediateHits?: number[];
+  intermediatePoint?: number;
+  routeDescription?: string;
 }
 
 export interface LastMoveSummary {

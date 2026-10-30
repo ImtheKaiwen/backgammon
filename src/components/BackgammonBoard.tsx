@@ -15,10 +15,11 @@ interface BackgammonBoardProps {
   currentTurn: Player;
   selectedSource: number | 'bar' | null;
   legalMoves: Move[];
-  onSelectPoint: (pointIndex: number) => void;
+  onSelectPoint: (pointIndex: number, specificMove?: Move) => void;
   onSelectBar: (player: Player) => void;
   onSelectBearOff: () => void;
   theme: BoardTheme;
+  aiHintMoves?: Move[];
 }
 
 export const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
@@ -31,7 +32,8 @@ export const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
   onSelectPoint,
   onSelectBar,
   onSelectBearOff,
-  theme
+  theme,
+  aiHintMoves = []
 }) => {
   // Check if a point is a legal move destination
   const isPointLegalTarget = (pointIndex: number) => {
@@ -91,15 +93,18 @@ export const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
   // Render a single triangular point
   const renderPointColumn = (pointIndex: number, isTopRow: boolean) => {
     const isTarget = isPointLegalTarget(pointIndex);
-    const matchedTargetMove = legalMoves.find(m => m.to === pointIndex);
+    const matchedMoves = legalMoves.filter(m => m.to === pointIndex);
+    const matchedTargetMove = matchedMoves[0];
     const isLightColor = pointIndex % 2 === 0;
+    const isAiHintSource = aiHintMoves.some(m => m.from === pointIndex);
+    const isAiHintTarget = aiHintMoves.some(m => m.to === pointIndex);
 
     return (
       <div
         key={pointIndex}
         className={`point-column ${isTopRow ? 'row-top' : 'row-bottom'} ${
           isTarget ? 'is-legal-target' : ''
-        }`}
+        } ${isAiHintSource ? 'is-ai-hint-source' : ''} ${isAiHintTarget ? 'is-ai-hint-target' : ''}`}
         onClick={() => onSelectPoint(pointIndex)}
       >
         {/* Triangle graphic */}
@@ -112,11 +117,33 @@ export const BackgammonBoard: React.FC<BackgammonBoardProps> = ({
         {/* Pip Number */}
         <span className="point-number">{pointIndex + 1}</span>
 
-        {/* Legal Target Marker */}
+        {/* Legal Target Marker or Route Choice Selector */}
         {isTarget && (
-          <div className={`target-pip-marker ${matchedTargetMove?.isCompound ? 'is-compound-marker' : ''}`}>
-            {matchedTargetMove?.isCompound ? `+${matchedTargetMove.dieUsed}` : ''}
-          </div>
+          matchedMoves.length > 1 ? (
+            <div className="route-choices-bubble" onClick={e => e.stopPropagation()}>
+              {matchedMoves.map((m, idx) => {
+                const isHitRoute = Boolean((m.intermediateHits && m.intermediateHits.length > 0) || m.isHit);
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    className={`route-choice-btn ${isHitRoute ? 'hit-route' : 'safe-route'}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectPoint(pointIndex, m);
+                    }}
+                    title={m.routeDescription || (isHitRoute ? 'Yolda kırarak git' : 'Kırmadan git')}
+                  >
+                    {isHitRoute ? '⚔️ Kırarak' : '🛡️ Düz'}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className={`target-pip-marker ${matchedTargetMove?.isCompound ? 'is-compound-marker' : ''}`}>
+              {matchedTargetMove?.isCompound ? `+${matchedTargetMove.dieUsed}` : ''}
+            </div>
+          )
         )}
 
         {/* Checkers */}
