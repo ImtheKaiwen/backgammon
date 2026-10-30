@@ -38,7 +38,8 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const t = translations[lang];
 
-  const logoSrc = themeMode === 'dark' ? '/kaiwen-logo-white.png' : '/kaiwen-logo-dark.png';
+  const baseUrl = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+  const logoSrc = themeMode === 'dark' ? `${baseUrl}kaiwen-logo-white.png` : `${baseUrl}kaiwen-logo-dark.png`;
 
   return (
     <header className="app-header">

@@ -127,7 +127,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     setCurrentStep(s => Math.max(0, s - 1));
   };
 
-  const logoSrc = themeMode === 'dark' ? '/kaiwen-logo-white.png' : '/kaiwen-logo-dark.png';
+  const baseUrl = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+  const logoSrc = themeMode === 'dark' ? `${baseUrl}kaiwen-logo-white.png` : `${baseUrl}kaiwen-logo-dark.png`;
 
   return (
     <div className="modal-backdrop">

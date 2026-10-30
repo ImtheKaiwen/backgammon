@@ -57,7 +57,8 @@ export const LeftNav: React.FC<LeftNavProps> = ({
   };
 
   const t = translations[lang];
-  const logoSrc = themeMode === 'dark' ? '/kaiwen-logo-white.png' : '/kaiwen-logo-dark.png';
+  const baseUrl = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+  const logoSrc = themeMode === 'dark' ? `${baseUrl}kaiwen-logo-white.png` : `${baseUrl}kaiwen-logo-dark.png`;
 
   return (
     <nav className={`left-nav ${isCollapsed ? 'collapsed' : ''}`}>
